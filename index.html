@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presidentes da República Portuguesa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lato', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Merriweather', serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #6b21a8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #581c87; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; padding: 1rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .flip-card-front { background-color: #f3f4f6; color: #1f2937; }
+        .flip-card-back { background-color: #6b21a8; color: white; transform: rotateY(180deg); }
+
+        /* Specific Utilities */
+        .glass-header { background: rgba(88, 28, 135, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .active-nav { border-bottom: 3px solid #fbbf24; color: #fbbf24; }
+
+        /* Responsive Media */
+        .video-container { position: relative; width: 100%; height: 0; padding-bottom: 56.25%; /* 16:9 Aspect Ratio */ }
+        .video-container video, .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 0.5rem; }
+        
+        /* Modal Utilities */
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.75); }
+
+        /* Matching Game Selected State */
+        .match-selected { border: 4px solid #fbbf24; transform: scale(1.02); }
+        .match-correct { border: 4px solid #22c55e; opacity: 0.6; pointer-events: none; }
+
+        /* Drag and Drop Game Styles */
+        .draggable-source { cursor: grab; user-select: none; transition: all 0.2s; }
+        .draggable-source:active { cursor: grabbing; transform: scale(1.05); }
+        .draggable-source.is-dragging { opacity: 0.5; }
+        
+        .drop-zone { border: 2px dashed #cbd5e1; background-color: #f8fafc; transition: all 0.3s; min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 0.5rem; }
+        .drop-zone.drag-over { background-color: #f3e8ff; border-color: #9333ea; transform: scale(1.02); }
+        .drop-zone.dropped-correct { background-color: #dcfce7; border-color: #22c55e; border-style: solid; color: #15803d; font-weight: bold; }
+
+        /* Sorting Game Styles */
+        .sort-item { cursor: grab; transition: background-color 0.2s, transform 0.2s; touch-action: none; }
+        .sort-item:active { cursor: grabbing; }
+        .sort-item.dragging { opacity: 0.5; background-color: #e9d5ff; border: 2px dashed #9333ea; }
+
+        /* Era Game Styles */
+        .era-target.drag-over { transform: scale(1.02); filter: brightness(0.95); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <header class="fixed w-full top-0 z-50 glass-header text-white transition-all duration-300 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="text-xl md:text-2xl font-bold tracking-wider uppercase cursor-pointer flex items-center gap-2" onclick="app.render('home')">
+                <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
+                <span>PR Portuguesa</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex space-x-6 text-sm font-semibold tracking-wide uppercase">
+                    <a href="#" class="hover:text-yellow-300 transition nav-link" data-target="section1">Guias</a>
+                    <a href="#" class="hover:text-yellow-300 transition nav-link" data-target="section2">1ª República</a>
+                    <a href="#" class="hover:text-yellow-300 transition nav-link" data-target="section3">Ditadura</a>
+                    <a href="#" class="hover:text-yellow-300 transition nav-link" data-target="section4">Democracia</a>
+                    <a href="#" class="hover:text-yellow-300 transition nav-link" data-target="flashcards">Flashcards</a>
+                    <a href="#" class="hover:text-yellow-300 transition nav-link" data-target="active">Quiz/Jogos</a>
+                </nav>
+
+                <!-- Help Button -->
+                <button onclick="app.openHelp()" class="text-white hover:text-yellow-400 focus:outline-none" title="Ajuda">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Nav Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-purple-900 text-center py-4 border-t border-purple-700">
+            <a href="#" class="block py-2 hover:bg-purple-800 nav-link" data-target="section1">Guias de Estudo</a>
+            <a href="#" class="block py-2 hover:bg-purple-800 nav-link" data-target="section2">1ª República</a>
+            <a href="#" class="block py-2 hover:bg-purple-800 nav-link" data-target="section3">Ditadura/Estado Novo</a>
+            <a href="#" class="block py-2 hover:bg-purple-800 nav-link" data-target="section4">Democracia</a>
+            <a href="#" class="block py-2 hover:bg-purple-800 nav-link" data-target="flashcards">Flashcards/Glossário</a>
+            <a href="#" class="block py-2 hover:bg-purple-800 nav-link" data-target="active">Quiz & Jogos</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app-content" class="flex-grow container mx-auto px-4 pt-24 pb-12">
+        <!-- Content will be injected here by JS -->
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modal-overlay" class="fixed inset-0 modal-backdrop z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative animate-fade-in flex flex-col">
+            <!-- Modal Header -->
+            <div class="bg-purple-900 text-white p-4 flex justify-between items-center sticky top-0 z-10">
+                <h3 id="modal-title" class="text-xl font-bold font-serif">Título</h3>
+                <button onclick="app.closeModal()" class="text-white hover:text-yellow-400 focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div id="modal-content" class="p-6">
+                <!-- Content Injected Here -->
+            </div>
+            <!-- Modal Footer -->
+            <div class="bg-gray-100 p-4 text-right border-t">
+                <button onclick="app.closeModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded font-bold transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 text-center mt-auto">
+        <p class="mb-2">Aplicação Educativa - Presidentes da República Portuguesa</p>
+        <p class="text-sm text-gray-600">Desenvolvido com HTML5, Tailwind CSS e JS (Vanilla)</p>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // --- DATA STORE ---
+        const DB = {
+            intro: {
+                title: "Bem-vindo à História da Presidência",
+                description: "Explore a evolução da Chefia do Estado em Portugal, desde a implantação da República até aos dias de hoje. Utilize os guias de estudo, consulte as biografias e teste os seus conhecimentos.",
+                image: "./infografia.jpg"
+            },
+            section1: {
+                title: "Secção I - Guias de Estudo",
+                infographic: "./infografia.jpg",
+                multimedia: {
+                    video: "./video.mp4",
+                    audio: "./podcast.mp3"
+                },
+                topics: [
+                    // ... [Same Content as previous for topics] ...
+                    {
+                        title: "Recursos Multimédia",
+                        content: `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded shadow">
+                                    <h4 class="font-bold mb-2">Vídeo: Introdução</h4>
+                                    <div class="video-container bg-gray-200">
+                                        <video controls src="./video.mp4" poster="https://picsum.photos/800/450?grayscale">
+                                            O seu navegador não suporta a tag de vídeo.
+                                        </video>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded shadow">
+                                    <h4 class="font-bold mb-2">Áudio: Podcast Educativo</h4>
+                                    <div class="flex items-center justify-center h-full bg-gray-100 rounded p-4">
+                                        <audio controls class="w-full" src="./podcast.mp3"></audio>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Introdução: A Magistratura Presidencial",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Chefe de Estado:</strong> O Presidente é a mais alta magistratura da nação.</li>
+                                <li><strong>Funções Primordiais:</strong> Representar a República, garantir a independência nacional, a unidade do Estado e o regular funcionamento das instituições democráticas.</li>
+                                <li><strong>Legitimidade:</strong> Eleito por sufrágio universal, direto e secreto, conferindo-lhe ligação direta com os cidadãos.</li>
+                                <li><strong>Órgão de Soberania:</strong> Posição central no equilíbrio do sistema político português.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "O Poder Moderador do Presidente",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Posição Distinta:</strong> Ocupa posição diferente da tripartição clássica de poderes (executivo, legislativo, judicial).</li>
+                                <li><strong>Função de Arbitragem:</strong> Intervém para garantir equilíbrio e estabilidade do sistema.</li>
+                                <li><strong>Sem Funções Executivas Diretas:</strong> Não governa diretamente, mas detém competências de direção política em momentos de crise.</li>
+                                <li><strong>Poderes de Controlo:</strong> Veto e dissolução parlamentar permitem influenciar governação e legislação.</li>
+                                <li><strong>Garante da Constituição:</strong> Legitimado pelo voto direto, é fundamental para o funcionamento das instituições.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Relação com o Governo",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Nomeação do Primeiro-Ministro:</strong> Ausculta partidos com representação parlamentar e considera resultados eleitorais.</li>
+                                <li><strong>Nomeação de Ministros:</strong> Nomeia e exonera membros do Governo sob proposta do Primeiro-Ministro.</li>
+                                <li><strong>Acompanhamento:</strong> Primeiro-Ministro deve informar sobre política interna e externa; Presidente pode presidir ao Conselho de Ministros quando solicitado.</li>
+                                <li><strong>Demissão do Governo:</strong> Poder excecional, só quando necessário para assegurar o regular funcionamento das instituições democráticas, após audição do Conselho de Estado.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Relação com a Assembleia da República",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Mensagens:</strong> Pode dirigir mensagens ao parlamento sobre assuntos que requerem intervenção parlamentar.</li>
+                                <li><strong>Convocatória Extraordinária:</strong> Pode convocar o parlamento fora do período normal para tratar assuntos urgentes.</li>
+                                <li><strong>Dissolução:</strong> Poder de dissolver a Assembleia em crises ou impasses governativos, com limites temporais e após audição dos partidos e do Conselho de Estado.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Controlo do Processo Legislativo",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Promulgação Obrigatória:</strong> Nenhum diploma adquire existência jurídica sem a promulgação (assinatura) do Presidente.</li>
+                                <li><strong>Fiscalização Preventiva da Constitucionalidade:</strong> Pode enviar diploma ao Tribunal Constitucional em 8 dias; Tribunal decide em 25 dias; se inconstitucional, Presidente devolve ao órgão que aprovou.</li>
+                                <li><strong>Veto Político:</strong> Pode devolver diploma com mensagem fundamentada (20 dias para diplomas da Assembleia, 40 dias para diplomas do Governo).</li>
+                                <li><strong>Veto Absoluto:</strong> Sobre diplomas do Governo - executivo deve abandonar ou alterar a proposta.</li>
+                                <li><strong>Veto Relativo:</strong> Sobre leis da Assembleia - parlamento pode ultrapassar com maioria absoluta (ou 2/3 para leis orgânicas e eleitorais).</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Relações Internacionais e Outras Funções",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Representação Internacional:</strong> Nomeia embaixadores e enviados extraordinários (sob proposta do Governo) e acredita representantes diplomáticos estrangeiros.</li>
+                                <li><strong>Ratificação de Tratados:</strong> Ratifica tratados internacionais após aprovação, vinculando o Estado português.</li>
+                                <li><strong>Fiscalização Sucessiva:</strong> Pode requerer ao Tribunal Constitucional declaração de inconstitucionalidade de normas já em vigor.</li>
+                                <li><strong>Representantes Regionais:</strong> Nomeia e exonera Representantes da República para Açores e Madeira (ouvido o Governo).</li>
+                                <li><strong>Nomeações Judiciárias:</strong> Nomeia (sob proposta do Governo) Presidente do Tribunal de Contas e Procurador-Geral da República.</li>
+                                <li><strong>Magistratura:</strong> Designa dois vogais do Conselho Superior da Magistratura e cinco membros do Conselho de Estado.</li>
+                                <li><strong>Outras Competências:</strong> Indulto e comutação de penas (ouvido o Governo), convocação de referendos nacionais, marcação de datas eleitorais.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Comandante Supremo das Forças Armadas",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Hierarquia Militar:</strong> Ocupa o primeiro lugar na hierarquia militar, garantindo soberania nacional e integridade territorial.</li>
+                                <li><strong>Conselho Superior de Defesa Nacional:</strong> Preside ao CSDN, órgão de consulta para matérias militares.</li>
+                                <li><strong>Nomeações Militares:</strong> Nomeia e exonera (sob proposta do Governo) Chefe do Estado-Maior-General e Chefes de Estado-Maior dos três ramos.</li>
+                                <li><strong>Fidelidade Constitucional:</strong> Assegura fidelidade das Forças Armadas à Constituição e às instituições democráticas.</li>
+                                <li><strong>Guerra e Paz:</strong> Declara guerra e faz paz (requer proposta do Governo, audição do Conselho de Estado e autorização da Assembleia).</li>
+                                <li><strong>Estados de Exceção:</strong> Declara estado de sítio ou emergência (ouvido Governo, com autorização parlamentar).</li>
+                                <li><strong>Informação Militar:</strong> Informado sobre situação e emprego das Forças Armadas, especialmente em missões externas.</li>
+                                <li><strong>Condecorações Militares:</strong> Confere condecorações por iniciativa própria.</li>
+                                <li><strong>Objetivos Estratégicos:</strong> Promove cultura de Segurança e Defesa Nacional, reforça coesão e prestígio das Forças Armadas.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Grão-Mestre das Ordens Honoríficas",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Função por Inerência:</strong> Por força do cargo, é Grão-Mestre de todas as Ordens Honoríficas Portuguesas.</li>
+                                <li><strong>Reconhecimento de Mérito:</strong> Distingue cidadãos, coletividades e instituições por méritos pessoais, feitos cívicos, militares ou atos de bravura.</li>
+                                <li><strong>Competências Exclusivas:</strong> Concede qualquer grau das Ordens por iniciativa própria ou por proposta de entidades habilitadas.</li>
+                                <li><strong>Grande-Colar:</strong> Mais alta insígnia, concedida a Chefes de Estado e personalidades com feitos extraordinários para Portugal.</li>
+                                <li><strong>Membros Honorários:</strong> Pode conceder título a coletividades ou instituições com serviços relevantes.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Conselho de Estado",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Órgão de Consulta Política:</strong> Principal órgão de aconselhamento do Presidente, presidido por este.</li>
+                                <li><strong>Composição Pluralista:</strong> Membros por inerência (Presidente da AR, Primeiro-Ministro, Presidente do TC, Provedor de Justiça, Presidentes regionais), antigos Presidentes da República, 5 cidadãos designados pelo Presidente, 5 cidadãos eleitos pela Assembleia.</li>
+                                <li><strong>Consulta Obrigatória:</strong> Dissolução da Assembleia e Assembleias regionais, demissão do Governo, declaração de guerra e feitura da paz.</li>
+                                <li><strong>Reuniões Reservadas:</strong> Não são públicas; pareceres de consulta obrigatória publicados apenas no momento do ato.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Conselho Superior de Defesa Nacional",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Órgão Especializado:</strong> Consulta específica para defesa nacional e Forças Armadas, presidido pelo Presidente.</li>
+                                <li><strong>Composição:</strong> Membros do Governo, chefias militares, representantes regionais e membros eleitos pela Assembleia.</li>
+                                <li><strong>Competências Consultivas:</strong> Parecer sobre guerra e paz, política de defesa, tratados de defesa, leis de programação militar, missões militares externas.</li>
+                                <li><strong>Competências Administrativas:</strong> Confirma conceito estratégico militar, aprova missões das Forças Armadas, exerce competências em tempo de guerra.</li>
+                                <li><strong>Reuniões:</strong> Ordinariamente a cada três meses, extraordinariamente quando convocado pelo Presidente.</li>
+                                <li><strong>Sigilo:</strong> Reuniões e pareceres sujeitos ao dever de sigilo.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Eleição Presidencial e Legitimidade",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Sufrágio Universal Direto:</strong> Eleito por voto direto e secreto dos cidadãos, fonte da legitimidade e amplitude de poderes.</li>
+                                <li><strong>Evolução Histórica:</strong> Primeira República tinha eleição indireta; Manuel de Arriaga foi o primeiro eleito (1911) pelo Congresso; António Ramalho Eanes foi o primeiro eleito por sufrágio universal direto (após 1974).</li>
+                                <li><strong>Requisitos de Candidatura:</strong> Cidadão português, mais de 35 anos, mínimo de 7.500 assinaturas de eleitores.</li>
+                                <li><strong>Primeira Volta:</strong> Vitória com mais de 50% dos votos validamente expressos.</li>
+                                <li><strong>Segunda Volta:</strong> Se nenhum candidato alcança maioria absoluta, realiza-se 21 dias depois entre os dois mais votados (ocorreu apenas em 1986).</li>
+                                <li><strong>Legitimidade Independente:</strong> Eleição direta confere legitimidade própria, independente do parlamento, essencial para papel moderador.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "Síntese das Competências Presidenciais",
+                        content: `
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong>Poder Moderador:</strong> Figura central que transcende representação cerimonial, essencial para equilíbrio do sistema semipresidencialista.</li>
+                                <li><strong>Instrumentos de Poder:</strong> Veto, dissolução, nomeação, comando supremo das Forças Armadas, controlo da constitucionalidade.</li>
+                                <li><strong>Garante da Constituição:</strong> Derradeiro garantidor do regular funcionamento das instituições democráticas.</li>
+                                <li><strong>Atuação em Normalidade:</strong> Influência preventiva e de arbitragem.</li>
+                                <li><strong>Atuação em Crise:</strong> Intervenção decisiva para restaurar equilíbrio, principal pilar de segurança do sistema democrático.</li>
+                                <li><strong>Contrapeso Institucional:</strong> Guardião da unidade do Estado e dos valores democráticos da República Portuguesa.</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "História das Eleições",
+                        content: "<p>Da eleição indireta pelo Congresso na I República ao sufrágio universal direto na Democracia. A evolução do voto como ferramenta de legitimidade.</p>"
+                    },
+                    {
+                        title: "Como se chega a Presidente?",
+                        content: `
+                            <div class="bg-purple-100 p-4 rounded-lg border-l-4 border-purple-600">
+                                <h4 class="font-bold">Requisitos:</h4>
+                                <ul class="list-disc pl-5 mt-2">
+                                    <li>Cidadão português de origem.</li>
+                                    <li>Maior de 35 anos.</li>
+                                    <li>Mínimo de 7.500 assinaturas de eleitores.</li>
+                                </ul>
+                            </div>
+                        `
+                    },
+                    {
+                        title: "O Papel do Presidente na História",
+                        content: `
+                            <p class="mb-2">Uma análise comparativa dos três períodos:</p>
+                            <ul class="list-decimal pl-5">
+                                <li><strong>1ª República:</strong> Poder limitado, instabilidade.</li>
+                                <li><strong>Estado Novo:</strong> Figura cerimonial/subordinada a Salazar (exceto Carmona no início).</li>
+                                <li><strong>Democracia:</strong> Poder moderador ativo, eleito pelo povo.</li>
+                            </ul>
+                            <div class="mt-4">
+                                <p class="text-sm font-semibold">Vídeo Recomendado: "O caso de três presidentes"</p>
+                                <div class="video-container mt-2">
+                                    <video controls src="./Tres_Presidentes_Uma_Republica.mp4" poster="https://picsum.photos/800/400?blur"></video>
+                                </div>
+                            </div>
+                        `
+                    }
+                ]
+            },
+            section2: {
+                title: "Secção II – Primeira República (1910-1926)",
+                infographic: "./infoprimeirarepublica.jpg",
+                summary: "Um período de grande instabilidade política e parlamentar. O Presidente era eleito pelo Congresso e tinha poderes limitados.",
+                presidents: [
+                    { 
+                        name: "Manuel de Arriaga", 
+                        period: "1911-1915", 
+                        img: "./01_manuel_arriaga.jpg", 
+                        desc: "Primeiro Presidente eleito. Tentou pacificar o país mas acabou por demitir-se após revolta.", 
+                        info: "./infoarriaga.jpg",
+                        fullBio: "<strong>Manuel de Arriaga (1840-1917)</strong><br><br>Foi o primeiro Presidente da República Portuguesa eleito. Advogado, escritor e orador notável, o seu mandato foi marcado pela tentativa de apaziguar as lutas partidárias entre as diversas fações republicanas que surgiram após a revolução. Enfrentou as incursões monárquicas lideradas por Paiva Couceiro no norte do país e uma crescente instabilidade governativa. Acabou por se demitir na sequência da Revolta de 14 de Maio de 1915, desiludido com a violência política." 
+                    },
+                    { 
+                        name: "Teófilo Braga", 
+                        period: "1915", 
+                        img: "./02_teofilo_braga.jpg", 
+                        desc: "Intelectual e sociólogo. Assumiu a presidência de transição após a demissão de Arriaga.", 
+                        info: "./infoteofilo.jpg",
+                        fullBio: "<strong>Teófilo Braga (1843-1924)</strong><br><br>Figura incontornável do Partido Republicano e da cultura portuguesa, já havia presidido ao Governo Provisório logo após a revolução de 5 de Outubro de 1910. Assumiu a Presidência da República num curto período de transição (maio a outubro de 1915) após a demissão de Manuel de Arriaga, com a missão de terminar o mandato deste. Foi um intelectual, escritor, poeta e sociólogo de renome, mentor da geração de 70." 
+                    },
+                    { 
+                        name: "Bernardino Machado", 
+                        period: "1915-1917 / 1925-1926", 
+                        img: "./08_bernardino_machado.jpg", 
+                        desc: "O único deposto duas vezes por golpes militares. Enfrentou a entrada de Portugal na I Guerra Mundial.", 
+                        info: "./infobernardino.jpg",
+                        fullBio: "<strong>Bernardino Machado (1851-1944)</strong><br><br>Teve dois mandatos distintos, ambos interrompidos abruptamente por golpes militares. O primeiro mandato (1915-1917) coincidiu com a controversa entrada de Portugal na I Guerra Mundial e terminou com o golpe de Estado de Sidónio Pais, que o forçou ao exílio. O segundo mandato (1925-1926) encerrou a I República, caindo com o golpe militar de 28 de Maio de 1926 que instaurou a Ditadura Militar. Foi um político hábil, persistente e uma das figuras cimeiras da maçonaria." 
+                    },
+                    { 
+                        name: "Sidónio Pais", 
+                        period: "1917-1918", 
+                        img: "./04_sidonio_pais.jpg", 
+                        desc: "O 'Presidente-Rei'. Instaurou um regime presidencialista e autoritário. Foi assassinado.", 
+                        info: "./infosidonio.jpg",
+                        fullBio: "<strong>Sidónio Pais (1872-1918)</strong><br><br>Protagonizou uma rutura com a ordem constitucional de 1911 ao liderar um golpe de Estado em dezembro de 1917. Instaurou a 'República Nova', um regime de cariz presidencialista, autoritário e populista, acumulando a chefia do Estado e do Governo. Cultivou uma imagem carismática que lhe valeu a alcunha de 'Presidente-Rei'. Foi assassinado a tiro na Estação do Rossio, em Lisboa, a 14 de dezembro de 1918, mergulhando o país em nova instabilidade." 
+                    },
+                    { 
+                        name: "Canto e Castro", 
+                        period: "1918-1919", 
+                        img: "./05_canto_e_castro.jpg", 
+                        desc: "Monárquico que serviu a República após a morte de Sidónio. Enfrentou revoltas monárquicas.", 
+                        info: "./infocantoecastro.jpg",
+                        fullBio: "<strong>João do Canto e Castro (1862-1934)</strong><br><br>Oficial da Marinha e monárquico convicto, aceitou assumir a Presidência da República 'por imperativo de consciência' e dever patriótico após o assassinato de Sidónio Pais. Teve de lidar com a proclamação da 'Monarquia do Norte' e as revoltas que se seguiram, tentando pacificar o país sem renunciar às suas convicções pessoais. A sua presidência foi um exercício de equilíbrio num período de quase guerra civil." 
+                    },
+                    { 
+                        name: "António José de Almeida", 
+                        period: "1919-1923", 
+                        img: "./06_antonio_jose_de_almeida.jpg", 
+                        desc: "O único da I República a cumprir o mandato completo. 'O Presidente da Sobrevivência'.", 
+                        info: "./infojosedealmeida.jpg",
+                        fullBio: "<strong>António José de Almeida (1866-1929)</strong><br><br>Conseguiu o feito raro e único na I República de cumprir o seu mandato de quatro anos até ao fim (1919-1923). Médico e orador eloquente (autor do famoso artigo 'O Ultimatum' que lhe valera a prisão no tempo da monarquia), o seu mandato foi de relativa estabilidade institucional comparado com os antecessores. Ficou marcado pela visita oficial ao Brasil em 1922, durante as comemorações do centenário da independência daquele país." 
+                    },
+                    { 
+                        name: "Manuel Teixeira Gomes", 
+                        period: "1923-1925", 
+                        img: "./07_teixeira_gomes.jpg", 
+                        desc: "Escritor e diplomata. Renunciou desiludido com a política e partiu para o exílio voluntário.", 
+                        info: "./infomanuelteixeiragomes.jpg",
+                        fullBio: "<strong>Manuel Teixeira Gomes (1860-1941)</strong><br><br>Homem de vasta cultura, escritor de mérito e diplomata experiente, foi eleito em 1923. O seu mandato foi marcado por forte instabilidade política, ataques pessoais e constantes quedas de governo. Desiludido com o clima político mesquinho e sentindo-se impotente para resolver as crises sucessivas, renunciou ao cargo em dezembro de 1925, exilando-se voluntariamente em Bougie, no Norte de África, de onde nunca mais regressou a Portugal." 
+                    }
+                ]
+            },
+            section3: {
+                title: "Secção III – Ditadura Militar e Estado Novo (1926-1974)",
+                infographics: ["./infoditaduramilitar.jpg", "./infosalazareestadonovo.jpg"],
+                summary: "Iniciado com o golpe de 28 de Maio de 1926. Evoluiu para o Estado Novo (1933), um regime autoritário onde o Presidente tinha poder formal, mas o poder real residia em Salazar.",
+                presidents: [
+                    { 
+                        name: "Mendes Cabeçadas", 
+                        period: "1926", 
+                        img: "./09_mendes_cabecadas.jpg", 
+                        desc: "Líder inicial do golpe de 1926, rapidamente afastado pelos mais conservadores.", 
+                        info: "./infomendescabecada.jpg",
+                        fullBio: "<strong>José Mendes Cabeçadas (1883-1965)</strong><br><br>Oficial da Marinha e republicano convicto, foi um dos líderes do golpe de 28 de Maio de 1926 que pôs fim à I República. Assumiu o poder brevemente, acreditando na regeneração do regime republicano, mas a sua visão moderada entrou rapidamente em conflito com a ala mais radical e conservadora do exército liderada por Gomes da Costa, sendo forçado a demitir-se poucas semanas depois." 
+                    },
+                    { 
+                        name: "Gomes da Costa", 
+                        period: "1926", 
+                        img: "./10_gomes_da_costa.jpg", 
+                        desc: "Líder militar da revolução, governou brevemente antes de ser exilado por Carmona.", 
+                        info: "./infogomesdacosta.jpg",
+                        fullBio: "<strong>Manuel Gomes da Costa (1863-1929)</strong><br><br>General que liderou as tropas que marcharam de Braga para Lisboa no 28 de Maio. Assumiu o poder após afastar Mendes Cabeçadas, acumulando a Presidência da República e do Ministério. Contudo, a sua inexperiência política e conflitos internos levaram a que fosse, por sua vez, deposto por um novo movimento liderado pelo General Óscar Carmona, sendo enviado para o exílio nos Açores." 
+                    },
+                    { 
+                        name: "Óscar Carmona", 
+                        period: "1926-1951", 
+                        img: "./11_oscar_carmona.jpg", 
+                        desc: "O garante da estabilidade militar do regime. Manteve-se no poder até à morte.", 
+                        info: "./infooscarcarmona.jpg",
+                        fullBio: "<strong>Óscar Carmona (1869-1951)</strong><br><br>Foi o Presidente que institucionalizou a Ditadura Militar e, posteriormente, o Estado Novo. Convidou António de Oliveira Salazar para o governo, delegando nele a gestão das finanças e depois a chefia do governo. Manteve-se no cargo até à sua morte em 1951, vencendo várias eleições sem oposição real. Serviu como o garante da estabilidade militar e política do regime, embora com poderes efetivos cada vez mais limitados face à ascensão de Salazar." 
+                    },
+                    { 
+                        name: "Craveiro Lopes", 
+                        period: "1951-1958", 
+                        img: "./12_craveiro_lopes.jpg", 
+                        desc: "Não foi reconduzido por Salazar devido a divergências e 'frieza' nas relações.", 
+                        info: "./infocraveirolopes.jpg",
+                        fullBio: "<strong>Francisco Craveiro Lopes (1894-1964)</strong><br><br>Eleito em 1951, procurou manter alguma dignidade institucional e independência face a Salazar, o que gerou atritos crescentes. A sua presidência ficou marcada por importantes visitas às províncias ultramarinas e pela inauguração de grandes obras públicas. Não foi reconduzido pelo regime para um segundo mandato devido à sua abertura a certas figuras da oposição e ao seu descontentamento com a política do governo, sendo substituído por Américo Tomás." 
+                    },
+                    { 
+                        name: "Américo Tomás", 
+                        period: "1958-1974", 
+                        img: "./13_americo_tomas.jpg", 
+                        desc: "Último Presidente do Estado Novo. A sua eleição controversa levou ao fim do sufrágio direto.", 
+                        info: "./infoamericotomas.jpg",
+                        fullBio: "<strong>Américo Tomás (1894-1987)</strong><br><br>Último Presidente do Estado Novo, eleito em 1958 após as conturbadas eleições contra o General Humberto Delgado. Representava a ala mais conservadora do regime (conhecida como 'o bunker'). A sua recusa em acelerar reformas políticas, mesmo durante a Primavera Marcelista, foi um dos fatores de bloqueio que precipitou o descontentamento militar e conduziu à revolução de 25 de Abril de 1974." 
+                    }
+                ]
+            },
+            section4: {
+                title: "Secção IV – Democracia (1974-Presente)",
+                infographic: "./infoterceirarepublica.jpg",
+                summary: "Após o 25 de Abril, instaurou-se a Democracia. O Presidente é eleito por sufrágio universal e funciona como árbitro do sistema.",
+                presidents: [
+                    { 
+                        name: "António de Spínola", 
+                        period: "1974", 
+                        img: "./14_antonio_spinola.jpg", 
+                        desc: "Primeiro Presidente após a revolução (JSN). Demitiu-se por discordar do rumo do PREC.", 
+                        info: "./infospinola.jpg",
+                        fullBio: "<strong>António de Spínola (1910-1996)</strong><br><br>Primeiro Presidente da República após o 25 de Abril, nomeado pela Junta de Salvação Nacional. General de prestígio, defendia uma transição federalista para as colónias, expressa no seu livro 'Portugal e o Futuro'. Entrou rapidamente em conflito com o Movimento das Forças Armadas (MFA) e a esquerda radical, demitindo-se após os acontecimentos de 28 de Setembro e fugindo do país após o 11 de Março de 1975." 
+                    },
+                    { 
+                        name: "Costa Gomes", 
+                        period: "1974-1976", 
+                        img: "./15_costa_gomes.jpg", 
+                        desc: "Geriu o período quente da revolução (PREC), evitando a guerra civil.", 
+                        info: "./infocostagomes.jpg",
+                        fullBio: "<strong>Francisco da Costa Gomes (1914-2001)</strong><br><br>Conhecido como 'o matemático' pela sua frieza estratégica, substituiu Spínola na Presidência. Geriu o conturbado período do PREC (Processo Revolucionário em Curso) com enorme prudência. O seu papel foi crucial para evitar a guerra civil em Portugal, especialmente durante o 'Verão Quente' de 1975 e nos complexos acontecimentos de 25 de Novembro, permitindo a transição para a normalidade democrática." 
+                    },
+                    { 
+                        name: "Ramalho Eanes", 
+                        period: "1976-1986", 
+                        img: "./16_ramalho_eanes.jpg", 
+                        desc: "Primeiro eleito democraticamente. Consolidou o regime constitucional.", 
+                        info: "./inforamalhoeanes.jpg",
+                        fullBio: "<strong>António Ramalho Eanes (1935-)</strong><br><br>Primeiro Presidente eleito democraticamente por sufrágio universal após a aprovação da Constituição de 1976. Militar de prestígio, operacional do 25 de Novembro, garantiu a consolidação das instituições democráticas e o primado do poder civil sobre o militar. Teve um papel interventivo na política, gerindo governos de iniciativa presidencial e chegando a fundar um partido (PRD) após deixar a presidência." 
+                    },
+                    { 
+                        name: "Mário Soares", 
+                        period: "1986-1996", 
+                        img: "./17_mario_soares.jpg", 
+                        desc: "Primeiro civil eleito em 60 anos. Criou a 'Magistratura de Influência' e as Presidências Abertas.", 
+                        info: "./infomariosoares.jpg",
+                        fullBio: "<strong>Mário Soares (1924-2017)</strong><br><br>Líder histórico da oposição à ditadura e fundador do Partido Socialista. Como Presidente (1986-1996), foi o primeiro civil no cargo em 60 anos. Redefiniu o papel presidencial através do conceito de 'Magistratura de Influência' e das famosas 'Presidências Abertas', aproximando o cargo dos cidadãos. O seu mandato coincidiu com a adesão de Portugal à CEE e o forte crescimento económico, promovendo a imagem de um Portugal moderno e europeu." 
+                    },
+                    { 
+                        name: "Jorge Sampaio", 
+                        period: "1996-2006", 
+                        img: "./18_jorge_sampaio.jpg", 
+                        desc: "Usou poderes de dissolução ('Bomba Atómica'). Focado na cultura e causas humanitárias.", 
+                        info: "./infojorgesampaio.jpg",
+                        fullBio: "<strong>Jorge Sampaio (1939-2021)</strong><br><br>Eleito em 1996, com um percurso ligado à advocacia e à oposição democrática. Focou o seu mandato em causas sociais, na cultura e em questões internacionais, destacando-se o seu papel na independência de Timor-Leste. Utilizou o poder de dissolução do parlamento em 2004, num momento controverso (a 'Bomba Atómica'), para resolver uma crise de instabilidade governativa após a saída de Durão Barroso para a Comissão Europeia." 
+                    },
+                    { 
+                        name: "Aníbal Cavaco Silva", 
+                        period: "2006-2016", 
+                        img: "./19_anibal_cavaco_silva.jpg", 
+                        desc: "Exerceu mandato durante a crise financeira e intervenção da Troika.", 
+                        info: "./infoanibalcavacosilva.jpg",
+                        fullBio: "<strong>Aníbal Cavaco Silva (1939-)</strong><br><br>Primeiro economista e figura do centro-direita a atingir a Presidência após o 25 de Abril, depois de uma década como Primeiro-Ministro. O seu mandato (2006-2016) coincidiu com a grave crise financeira mundial e a intervenção da Troika em Portugal. Exerceu um papel de vigilância orçamental e institucional, muitas vezes em tensão com o governo socialista de José Sócrates e, posteriormente, acompanhando a execução do programa de ajustamento." 
+                    },
+                    { 
+                        name: "Marcelo Rebelo de Sousa", 
+                        period: "2016-Presente", 
+                        img: "./20_marcelo_rebelo_de_sousa.jpg", 
+                        desc: "Presidência de 'afetos' e proximidade. Ativo na esfera mediática.", 
+                        info: "./infomarcelorebelodesousa.jpg",
+                        fullBio: "<strong>Marcelo Rebelo de Sousa (1948-)</strong><br><br>Professor catedrático de Direito e famoso comentador político televisivo. A sua presidência caracteriza-se por uma enorme proximidade popular (a 'presidência dos afetos'), presença constante nos media e intervenção rápida sobre a atualidade. Geriu o país durante a pandemia de COVID-19, decretando o Estado de Emergência pela primeira vez em democracia. Mantém altos níveis de popularidade devido ao seu estilo informal e comunicativo." 
+                    }
+                ]
+            },
+            flashcards: [
+                { term: "Estado Novo", def: "Regime ditatorial que vigorou de 1933 a 1974." },
+                { term: "PREC", def: "Processo Revolucionário em Curso (1974-1975)." },
+                { term: "PIDE", def: "Polícia política do Estado Novo." },
+                { term: "Sidonismo", def: "Regime autoritário liderado por Sidónio Pais (1917-1918)." },
+                { term: "União Nacional", def: "Única organização política legal durante o Estado Novo." },
+                { term: "Revolução dos Cravos", def: "Golpe militar de 25 de Abril de 1974 que restaurou a democracia." },
+                { term: "MFA", def: "Movimento das Forças Armadas." },
+                { term: "Veto Político", def: "Poder do Presidente de recusar promulgar um diploma." },
+                { term: "Coabitação", def: "Presidente e Governo de áreas políticas opostas." },
+                { term: "Palácio de Belém", def: "Residência oficial do Presidente da República." }
+            ],
+            glossary: [
+                { term: "CEE", def: "Comunidade Económica Europeia (adesão em 1986)." },
+                { term: "DGS", def: "Direção-Geral de Segurança (sucessora da PIDE)." },
+                { term: "Concordata", def: "Acordo entre Portugal e a Santa Sé (1940)." },
+                { term: "Legião Portuguesa", def: "Milícia paramilitar do Estado Novo." },
+                { term: "Mocidade Portuguesa", def: "Organização juvenil de doutrinação do Estado Novo." }
+            ],
+            quiz: [
+                { q: "Que cognome foi dado ao artigo de António José de Almeida, publicado em 1890 na revista académica 'O Ultimatum', que criticava veementemente o rei D. Carlos?", options: ["Bragança, o último", "A Afronta Real", "O Ultimato Português", "O Fim da Monarquia"], correct: 0, info: "O título referia-se ao que Almeida considerava ser o destino da casa real governante, a dinastia de Bragança." },
+                { q: "Durante a Segunda Guerra Mundial, qual foi a política externa oficial de Portugal sob a liderança de António de Oliveira Salazar?", options: ["Aliança total com as potências do Eixo", "Neutralidade, com a cedência da Base das Lajes aos Aliados na fase final", "Isolacionismo completo, recusando qualquer contacto com os beligerantes", "Apoio incondicional aos Aliados desde o início do conflito"], correct: 1, info: "Esta política permitiu a Portugal negociar com ambos os lados do conflito, mas incluiu a concessão estratégica da Base das Lajes aos Aliados." },
+                { q: "A publicação de que livro por António de Spínola, em fevereiro de 1974, é considerada um fator que acelerou a queda do regime do Estado Novo?", options: ["Portugal e o Futuro", "Guiné: Uma Solução Política", "A Revolução dos Cravos", "O Fim do Império"], correct: 0, info: "O livro apontava para uma reflexão sobre o destino do país e a sua política ultramarina, questionando a guerra colonial." },
+                { q: "Durante os seus mandatos como primeiro-ministro, Aníbal Cavaco Silva obteve um feito eleitoral inédito na política portuguesa desde o 25 de Abril. Qual foi?", options: ["Criou uma coligação governamental que durou uma década", "Foi o primeiro-ministro que governou por mais tempo ininterruptamente", "Venceu as eleições com mais de 70% dos votos", "Conquistou duas maiorias absolutas consecutivas para um único partido"], correct: 3, info: "O PSD conseguiu governar sem necessitar de acordos, tendo força suficiente no parlamento em duas legislaturas seguidas." },
+                { q: "Qual era o lema que resumia a ideologia do Estado Novo, enfatizando os pilares da sociedade segundo o regime?", options: ["Liberdade, Igualdade, Fraternidade", "Tudo pela Nação, nada contra a Nação", "Deus, Pátria, Família", "Ordem e Progresso"], correct: 2, info: "O lema invoca três conceitos fundamentais: um espiritual (Deus), um nacional (Pátria) e um social (Família)." },
+                { q: "Qual foi o principal motivo para que o Presidente Francisco Craveiro Lopes não fosse proposto para um segundo mandato em 1958?", options: ["Um grave problema de saúde que o incapacitou para continuar", "As suas relações frias com Salazar e a sua simpatia por figuras da oposição", "A alteração da Constituição que passou a impedir a reeleição", "A sua decisão pessoal de se retirar da vida política"], correct: 1, info: "A sua relação com o chefe do governo deteriorou-se ao longo do seu mandato devido às divergências políticas." },
+                { q: "Francisco da Costa Gomes assumiu a Presidência da República em setembro de 1974. Que evento levou diretamente à sua nomeação?", options: ["A nomeação direta pelo Movimento das Forças Armadas no dia 25 de Abril", "A conclusão do mandato regular do presidente anterior", "A vitória nas primeiras eleições presidenciais livres", "A demissão do General António de Spínola"], correct: 3, info: "O antecessor deixou o cargo após uma crise política relacionada com a manifestação da Maioria Silenciosa que foi proibida." },
+                { q: "Qual foi uma das principais prioridades da política externa de Mário Soares enquanto primeiro-ministro nos primeiros governos constitucionais?", options: ["A adesão de Portugal à Comunidade Económica Europeia (CEE)", "A criação de uma comunidade militar de nações de língua portuguesa", "O reforço dos laços com os países do Pacto de Varsóvia", "A manutenção de uma política de neutralidade e isolamento"], correct: 0, info: "O objetivo era integrar Portugal na comunidade económica e política europeia para consolidar a democracia." },
+                { q: "Durante a sua longa presidência no Estado Novo, Óscar Carmona estabeleceu a sua residência oficial num local diferente do Palácio de Belém. Onde viveu com a sua família?", options: ["No Palácio Nacional da Ajuda", "No Palácio da Cidadela de Cascais", "No Palácio Nacional de Queluz", "No Palácio das Necessidades"], correct: 1, info: "A residência escolhida era uma fortaleza junto ao mar, perto de Lisboa, que hoje é também usada pelo Presidente da República." },
+                { q: "Após a revolução de 5 de Outubro de 1910, que cargo de chefia do Estado assumiu Teófilo Braga?", options: ["Reitor da Universidade de Lisboa", "Presidente da Assembleia Nacional Constituinte", "Presidente do Governo Provisório", "Primeiro Presidente da República eleito"], correct: 2, info: "Foi o primeiro chefe do poder executivo do novo regime republicano após a queda da monarquia." },
+                { q: "De acordo com a Constituição da Terceira República Portuguesa, qual é a idade mínima para um cidadão ser elegível para o cargo de Presidente da República?", options: ["40 anos", "30 anos", "25 anos", "35 anos"], correct: 3, info: "É uma idade que pressupõe maturidade política, sendo superior à maioridade civil." },
+                { q: "Qual foi a política de Salazar em relação aos refugiados judeus durante a Segunda Guerra Mundial?", options: ["Proibir totalmente a entrada de refugiados judeus no país", "Conceder cidadania portuguesa a todos os judeus que chegassem", "Entregar os refugiados judeus às autoridades alemãs", "Autorizar a sua entrada em Portugal como país de trânsito"], correct: 3, info: "A política oficial era de aceitação condicionada, permitindo a passagem mas não visando a fixação permanente." },
+                { q: "João do Canto e Castro tornou-se Presidente da República num contexto de grande crise política. Que evento imediato o levou ao poder?", options: ["A renúncia de Teófilo Braga", "A vitória numa eleição direta contra os monárquicos", "Um golpe militar liderado pela Marinha", "O assassinato de Sidónio Pais"], correct: 3, info: "O seu antecessor foi assassinado na Estação do Rossio em Lisboa a 14 de dezembro de 1918." },
+                { q: "No seu percurso de oposição ao Estado Novo, Mário Soares foi alvo de várias punições por parte do regime. Qual das seguintes foi uma delas?", options: ["Foi-lhe retirada a nacionalidade portuguesa", "Foi condenado a prisão perpétua no Tarrafal", "Foi exilado permanentemente na União Soviética", "Foi deportado para a ilha de São Tomé"], correct: 3, info: "Foi enviado para esta província ultramarina em África sem ter sido submetido a julgamento." },
+                { q: "O que pôs fim ao regime do Estado Novo a 25 de abril de 1974?", options: ["A morte de Marcello Caetano, que criou um vazio de poder", "Uma revolta popular em massa que invadiu os edifícios do governo", "Uma eleição democrática em que a oposição venceu", "Um golpe militar liderado pelo Movimento das Forças Armadas (MFA)"], correct: 3, info: "Foi uma ação coordenada por militares cansados da guerra colonial, que derrubou pacificamente o regime." }
+            ]
+        };
+
+        // --- APP STATE & LOGIC ---
+        const app = {
+            currentScore: 0,
+            
+            init: () => {
+                app.setupNavigation();
+                app.render('home');
+                
+                // Close modal on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') app.closeModal();
+                });
+            },
+
+            setupNavigation: () => {
+                const links = document.querySelectorAll('.nav-link');
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                links.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = e.target.dataset.target;
+                        app.render(target);
+                        // Highlight active
+                        links.forEach(l => l.classList.remove('active-nav'));
+                        if(!e.target.parentElement.classList.contains('bg-purple-900')) {
+                            // Only add underline style for desktop
+                            e.target.classList.add('active-nav');
+                        }
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            },
+
+            render: (view) => {
+                const main = document.getElementById('app-content');
+                main.innerHTML = ''; // Clear current content
+                window.scrollTo(0, 0);
+
+                if (view === 'home') app.renderHome(main);
+                else if (view === 'section1') app.renderStudyGuides(main);
+                else if (view === 'section2') app.renderPresidentList(main, 'section2');
+                else if (view === 'section3') app.renderPresidentList(main, 'section3');
+                else if (view === 'section4') app.renderPresidentList(main, 'section4');
+                else if (view === 'flashcards') app.renderFlashcards(main);
+                else if (view === 'active') app.renderActiveLearning(main);
+            },
+
+            // --- MODAL SYSTEM ---
+            openModal: (title, contentHtml) => {
+                const overlay = document.getElementById('modal-overlay');
+                const titleEl = document.getElementById('modal-title');
+                const contentEl = document.getElementById('modal-content');
+                
+                titleEl.innerText = title;
+                contentEl.innerHTML = contentHtml;
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            },
+
+            closeModal: () => {
+                const overlay = document.getElementById('modal-overlay');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            },
+
+            openPresInfographic: (sectionKey, idx) => {
+                const pres = DB[sectionKey].presidents[idx];
+                const content = `<img src="${pres.info}" class="w-full max-w-full rounded shadow-lg">`;
+                app.openModal(`Infografia: ${pres.name}`, content);
+            },
+
+            openPresBio: (sectionKey, idx) => {
+                const pres = DB[sectionKey].presidents[idx];
+                const content = `
+                    <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-inner">
+                        <div class="flex items-center gap-4 mb-6 border-b-2 border-yellow-100 pb-4">
+                            <img src="${pres.img}" class="w-20 h-20 object-cover rounded-full shadow-md">
+                            <div>
+                                <h4 class="text-2xl font-bold text-gray-800">${pres.name}</h4>
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-bold">${pres.period}</span>
+                            </div>
+                        </div>
+                        <div class="prose prose-purple max-w-none text-gray-800 leading-relaxed text-justify">
+                            ${pres.fullBio}
+                        </div>
+                        <div class="mt-8 pt-4 border-t border-gray-100 text-sm text-gray-500 italic flex items-center justify-between">
+                            <span>Biografia Educativa</span>
+                            <span>PR Portuguesa</span>
+                        </div>
+                    </div>
+                `;
+                app.openModal(`Biografia: ${pres.name}`, content);
+            },
+
+            openHelp: () => {
+                const html = `
+                    <div class="space-y-4 text-left">
+                        <p class="text-gray-700">Esta aplicação serve como guia de estudo interativo sobre os Presidentes da República Portuguesa.</p>
+                        <hr class="border-gray-200">
+                        <p><strong><span class="text-purple-700">Guias de Estudo:</span></strong> Explore conceitos teóricos, funções do Presidente e recursos multimédia.</p>
+                        <p><strong><span class="text-yellow-600">Cronologia (Secções II-IV):</span></strong> Navegue pelas épocas históricas (1ª República, Ditadura, Democracia) e consulte biografias e infografias detalhadas de cada Presidente.</p>
+                        <p><strong><span class="text-purple-700">Flashcards:</span></strong> Memorize conceitos chave clicando nos cartões para ver a definição.</p>
+                        <p><strong><span class="text-green-600">Aprendizagem Ativa:</span></strong> Teste os seus conhecimentos para ganhar pontos:
+                            <ul class="list-disc pl-5 mt-1 text-sm text-gray-600 space-y-1">
+                                <li><strong>Quem é Quem:</strong> Associe a foto correta à descrição do Presidente.</li>
+                                <li><strong>Mandatos:</strong> Arraste o Presidente para a data correta do seu mandato.</li>
+                                <li><strong>Presidentes e Épocas:</strong> Arraste o nome do Presidente para a sua época histórica.</li>
+                                <li><strong>Quiz:</strong> Responda a perguntas de escolha múltipla.</li>
+                                <li><strong>Ordenação:</strong> Organize os Presidentes cronologicamente.</li>
+                            </ul>
+                        </p>
+                        <div class="bg-purple-50 p-3 rounded text-sm text-purple-800 mt-4 border border-purple-200">
+                            <strong>Dica:</strong> Complete as atividades para aumentar a sua pontuação. No final, clique em "Emitir Certificado" na secção de Aprendizagem Ativa.
+                        </div>
+                    </div>
+                `;
+                app.openModal("Ajuda / Guia da Aplicação", html);
+            },
+
+            // --- RENDERERS ---
+
+            renderHome: (container) => {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-center fade-in py-10">
+                        <h1 class="text-4xl md:text-6xl font-bold text-purple-900 mb-6">${DB.intro.title}</h1>
+                        <p class="text-xl text-gray-600 max-w-2xl mb-10">${DB.intro.description}</p>
+                        <div class="relative w-full max-w-4xl shadow-2xl rounded-lg overflow-hidden group">
+                            <img src="${DB.intro.image}" onerror="this.src='https://picsum.photos/1200/600'" alt="Infografia Geral" class="w-full h-auto transform group-hover:scale-105 transition duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-center pb-8">
+                                <span class="text-white text-lg font-light tracking-widest">INFOGRAFIA GERAL</span>
+                            </div>
+                        </div>
+                        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+                            <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border-t-4 border-purple-500" onclick="app.render('section1')">
+                                <h3 class="text-xl font-bold mb-2">Guias de Estudo</h3>
+                                <p class="text-gray-500">Conceitos fundamentais e multimédia.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border-t-4 border-yellow-500" onclick="app.render('section2')">
+                                <h3 class="text-xl font-bold mb-2">Cronologia</h3>
+                                <p class="text-gray-500">Explore os presidentes por época.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition cursor-pointer border-t-4 border-green-500" onclick="app.render('active')">
+                                <h3 class="text-xl font-bold mb-2">Jogos & Quiz</h3>
+                                <p class="text-gray-500">Teste o seu conhecimento.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderStudyGuides: (container) => {
+                const data = DB.section1;
+                // Generate Infographic Button Logic
+                const openInfo = () => {
+                    const content = `<img src="${data.infographic}" class="w-full max-w-full rounded shadow-lg">`;
+                    app.openModal(data.title, content);
+                };
+                
+                // Expose temporary function for inline onClick
+                window.tempOpenInfo = openInfo;
+
+                let html = `
+                    <div class="fade-in max-w-4xl mx-auto">
+                        <div class="text-center mb-10">
+                            <h2 class="text-3xl font-bold text-purple-900 mb-4">${data.title}</h2>
+                            <button onclick="tempOpenInfo()" class="group relative inline-block">
+                                <img src="${data.infographic}" onerror="this.src='https://picsum.photos/800/300'" class="w-full rounded-lg shadow-lg mb-6 group-hover:opacity-90 transition">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition duration-300 rounded-lg">
+                                    <span class="bg-white text-purple-900 px-4 py-2 rounded-full font-bold opacity-0 group-hover:opacity-100 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition">Ver Infografia em Detalhe</span>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <!-- Multimedia Section -->
+                        <div class="bg-purple-50 p-6 rounded-xl shadow-inner mb-8">
+                            ${data.topics[0].content}
+                        </div>
+
+                        <!-- Accordion Topics -->
+                        <div class="space-y-4">
+                `;
+
+                data.topics.slice(1).forEach((topic, index) => {
+                    html += `
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <button class="w-full flex justify-between items-center p-5 bg-white hover:bg-gray-50 transition focus:outline-none" onclick="app.toggleAccordion(this)">
+                                <span class="text-lg font-bold text-gray-800">${topic.title}</span>
+                                <span class="transform transition-transform duration-300">▼</span>
+                            </button>
+                            <div class="hidden p-6 border-t border-gray-100 prose text-gray-600 bg-gray-50">
+                                ${topic.content}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                container.innerHTML = html;
+            },
+
+            renderPresidentList: (container, sectionKey) => {
+                const sectionData = DB[sectionKey];
+                let infogs = '';
+                // Handle multiple or single infographic for the top section
+                if(Array.isArray(sectionData.infographics)) {
+                    sectionData.infographics.forEach((src, i) => {
+                        window[`tempOpenSecInfo${i}`] = () => app.openModal('Infografia', `<img src="${src}" class="w-full max-w-full">`);
+                        infogs += `<img src="${src}" onclick="tempOpenSecInfo${i}()" onerror="this.src='https://picsum.photos/800/300?random=${Math.random()}'" class="w-full md:w-1/2 rounded-lg shadow mb-4 cursor-pointer hover:opacity-90">`;
+                    });
+                } else if (sectionData.infographic) {
+                    window.tempOpenSecInfo = () => app.openModal('Infografia', `<img src="${sectionData.infographic}" class="w-full max-w-full">`);
+                    infogs = `<img src="${sectionData.infographic}" onclick="tempOpenSecInfo()" onerror="this.src='https://picsum.photos/800/300'" class="w-full rounded-lg shadow mb-4 cursor-pointer hover:opacity-90">`;
+                }
+
+                let html = `
+                    <div class="fade-in max-w-5xl mx-auto">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl md:text-4xl font-bold text-purple-900 mb-6">${sectionData.title}</h2>
+                            <div class="flex flex-wrap justify-center gap-4 mb-6">${infogs}</div>
+                            <p class="text-lg text-gray-700 bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-400 text-left">${sectionData.summary}</p>
+                        </div>
+                        <div class="grid grid-cols-1 gap-6">
+                `;
+
+                sectionData.presidents.forEach((pres, idx) => {
+                    html += `
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300 flex flex-col md:flex-row">
+                            <div class="md:w-1/3 relative">
+                                <img src="${pres.img}" onerror="this.src='https://picsum.photos/300/400?random=${idx}'" class="w-full h-64 md:h-full object-cover">
+                                <div class="absolute bottom-0 left-0 bg-purple-900 text-white px-3 py-1 text-sm font-bold">${pres.period}</div>
+                            </div>
+                            <div class="p-6 md:w-2/3 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-2">${pres.name}</h3>
+                                    <p class="text-gray-600 mb-4 line-clamp-3">${pres.desc}</p>
+                                </div>
+                                <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                                    <button onclick="app.openPresInfographic('${sectionKey}', ${idx})" class="flex-1 px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition shadow flex items-center justify-center gap-2 font-bold text-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        Ver Infografia
+                                    </button>
+                                    <button onclick="app.openPresBio('${sectionKey}', ${idx})" class="flex-1 px-3 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition shadow flex items-center justify-center gap-2 font-bold text-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        Ler Biografia
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                container.innerHTML = html;
+            },
+
+            renderFlashcards: (container) => {
+                let html = `
+                    <div class="fade-in max-w-4xl mx-auto text-center">
+                        <h2 class="text-3xl font-bold text-purple-900 mb-8">Flashcards & Glossário</h2>
+                        
+                        <div class="mb-12">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-700">Conceitos Chave (Clique para virar)</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                `;
+
+                DB.flashcards.forEach(card => {
+                    html += `
+                        <div class="flip-card h-48 w-full cursor-pointer" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front">
+                                    <h4 class="text-lg font-bold text-purple-800">${card.term}</h4>
+                                </div>
+                                <div class="flip-card-back flex-col px-4">
+                                    <p class="text-sm font-semibold">${card.def}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-8 rounded-xl shadow-lg text-left">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Glossário</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                `;
+                
+                DB.glossary.forEach(item => {
+                    html += `
+                        <div>
+                            <span class="font-bold text-purple-700 block">${item.term}</span>
+                            <span class="text-gray-600 text-sm">${item.def}</span>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div></div>`;
+                container.innerHTML = html;
+            },
+
+            renderActiveLearning: (container) => {
+                let html = `
+                    <div class="fade-in max-w-4xl mx-auto">
+                        <h2 class="text-3xl font-bold text-center text-purple-900 mb-8">Aprendizagem Ativa</h2>
+                        
+                        <!-- Scoreboard -->
+                        <div class="bg-purple-900 text-white rounded-lg p-4 mb-8 flex justify-between items-center shadow-lg sticky top-20 z-40 ring-4 ring-purple-200">
+                            <div>
+                                <span class="font-bold text-lg block">Pontuação Total</span>
+                                <span class="text-xs opacity-75">Responda para subir de nível</span>
+                            </div>
+                            <span class="text-3xl font-mono text-yellow-400 font-bold" id="score-display">${app.currentScore}</span>
+                        </div>
+
+                        <!-- Matching Game: Quem é Quem? -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-blue-500">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold">1</span>
+                                Jogo: Quem é Quem?
+                            </h3>
+                            <p class="mb-4 text-gray-600">Associe a fotografia do Presidente à sua descrição correta.</p>
+                            <div id="matching-game-container">
+                                <!-- Matching Game Injected Here -->
+                            </div>
+                        </div>
+
+                        <!-- Period Matching Game (Drag and Drop) -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-pink-500">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span class="bg-pink-100 text-pink-600 w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
+                                Jogo: Mandatos Presidenciais (Drag & Drop)
+                            </h3>
+                            <p class="mb-4 text-gray-600">Arraste o Presidente para a data correta do seu mandato.</p>
+                            <div id="period-game-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <!-- Period Game Injected Here -->
+                            </div>
+                            <div id="period-feedback" class="mt-4 text-center font-bold text-lg h-8"></div>
+                        </div>
+
+                        <!-- NEW: Era Matching Game -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-indigo-500">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center font-bold">3</span>
+                                Jogo: Presidentes e Épocas
+                            </h3>
+                            <p class="mb-4 text-gray-600">Arraste o nome do Presidente para a sua época histórica correta.</p>
+                            <div id="era-game-container">
+                                <!-- Era Game Injected Here -->
+                            </div>
+                        </div>
+
+                        <!-- Quiz Section -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-yellow-500">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span class="bg-yellow-100 text-yellow-600 w-8 h-8 rounded-full flex items-center justify-center font-bold">4</span>
+                                Questionário (${DB.quiz.length} Questões)
+                            </h3>
+                            <div id="quiz-container" class="space-y-6">
+                `;
+
+                DB.quiz.forEach((q, idx) => {
+                    html += `
+                        <div class="border-b border-gray-100 pb-4 last:border-0" id="q-${idx}">
+                            <p class="font-semibold text-lg mb-3">${idx + 1}. ${q.q}</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${q.options.map((opt, optIdx) => `
+                                    <button onclick="app.checkAnswer(${idx}, ${optIdx}, this)" class="quiz-opt-btn text-left px-4 py-2 rounded border border-gray-300 hover:bg-purple-50 hover:border-purple-300 transition text-sm">
+                                        ${opt}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div class="feedback hidden mt-3 p-3 rounded bg-gray-100 text-sm animate-fade-in"></div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+
+                        <!-- Mini Game: Sorting (Drag & Drop Upgraded) -->
+                        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-t-4 border-green-500">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span class="bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center font-bold">5</span>
+                                Jogo: Ordem Cronológica (Arrastar e Soltar)
+                            </h3>
+                            <p class="mb-4 text-sm text-gray-600">Arraste os nomes para ordenar os Presidentes do mais antigo (topo) para o mais recente (fundo). Se preferir, use as setas.</p>
+                            <div id="sort-game" class="space-y-2" ondragover="app.handleSortDragOver(event)">
+                                <!-- Game items injected here -->
+                            </div>
+                            <button onclick="app.checkOrder()" class="mt-4 w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 font-bold shadow">Verificar Ordem</button>
+                            <div id="game-feedback" class="mt-2 text-center font-bold"></div>
+                        </div>
+
+                        <!-- Final Certificate Button -->
+                        <div class="text-center py-8">
+                            <button onclick="app.generateCertificate()" class="bg-gray-800 text-yellow-400 px-8 py-4 rounded-full font-bold text-xl shadow-lg hover:scale-105 transition transform flex items-center justify-center gap-3 mx-auto">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Emitir Certificado Final
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+                app.initSortGame();
+                app.initMatchingGame();
+                app.initPeriodGame();
+                app.initEraGame();
+            },
+
+            // --- INTERACTIVITY ---
+
+            toggleAccordion: (btn) => {
+                const content = btn.nextElementSibling;
+                const icon = btn.querySelector('span:last-child'); // The arrow
+                
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.classList.add('hidden');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            },
+
+            checkAnswer: (qIdx, optIdx, btn) => {
+                const questionData = DB.quiz[qIdx];
+                const container = document.getElementById(`q-${qIdx}`);
+                const feedback = container.querySelector('.feedback');
+                const allBtns = container.querySelectorAll('.quiz-opt-btn');
+
+                // Disable all buttons in this question
+                allBtns.forEach(b => b.disabled = true);
+
+                // Highlight correct answer regardless of user choice
+                const correctBtn = allBtns[questionData.correct];
+                correctBtn.classList.remove('hover:bg-purple-50', 'border-gray-300');
+                correctBtn.classList.add('bg-green-100', 'border-green-500', 'text-green-800', 'font-bold');
+
+                if (optIdx === questionData.correct) {
+                    // User was correct
+                    feedback.innerHTML = `<span class="text-green-700 font-bold text-lg block mb-1">✓ Correto!</span> ${questionData.info}`;
+                    feedback.classList.remove('bg-gray-100', 'bg-red-50');
+                    feedback.classList.add('bg-green-50', 'border', 'border-green-200');
+                    app.updateScore(10);
+                } else {
+                    // User was incorrect
+                    btn.classList.add('bg-red-100', 'border-red-500', 'text-red-800', 'opacity-75');
+                    feedback.innerHTML = `<span class="text-red-700 font-bold text-lg block mb-1">✗ Incorreto.</span> <span class="block mb-2 text-gray-700">A resposta correta era: <strong>${questionData.options[questionData.correct]}</strong>.</span> ${questionData.info}`;
+                    feedback.classList.remove('bg-gray-100', 'bg-green-50');
+                    feedback.classList.add('bg-red-50', 'border', 'border-red-200');
+                }
+                feedback.classList.remove('hidden');
+            },
+
+            updateScore: (points) => {
+                app.currentScore += points;
+                const display = document.getElementById('score-display');
+                if(display) {
+                    // Animation effect
+                    display.style.transform = "scale(1.5)";
+                    display.innerText = app.currentScore;
+                    setTimeout(() => display.style.transform = "scale(1)", 200);
+                }
+            },
+
+            // --- MATCHING GAME LOGIC (Who is Who) ---
+            matchingState: {
+                selectedImg: null,
+                selectedText: null,
+                matchedCount: 0,
+                totalPairs: 4
+            },
+
+            initMatchingGame: () => {
+                const container = document.getElementById('matching-game-container');
+                if (!container) return;
+
+                // Flatten all presidents from sections
+                const allPresidents = [
+                    ...DB.section2.presidents,
+                    ...DB.section3.presidents,
+                    ...DB.section4.presidents
+                ];
+
+                // Shuffle and pick 4 unique ones
+                const shuffled = allPresidents.sort(() => 0.5 - Math.random()).slice(0, 4);
+                app.matchingState.totalPairs = 4;
+                app.matchingState.matchedCount = 0;
+                
+                // Prepare data for columns
+                const images = shuffled.map((p, i) => ({ id: i, src: p.img, name: p.name }));
+                const texts = shuffled.map((p, i) => ({ id: i, text: p.desc })).sort(() => 0.5 - Math.random()); // Shuffle texts column
+
+                let html = `<div class="grid grid-cols-2 gap-8 relative">`;
+                
+                // Left Column: Images
+                html += `<div class="space-y-4">`;
+                images.forEach(img => {
+                    html += `
+                        <div class="match-item-img cursor-pointer transition-all duration-300 rounded-lg overflow-hidden shadow-md border-2 border-transparent hover:shadow-lg" 
+                             onclick="app.handleMatchClick('img', ${img.id}, this)">
+                            <img src="${img.src}" class="w-full h-32 object-cover">
+                            <div class="bg-gray-100 text-xs text-center py-1 font-bold">${img.name}</div>
+                        </div>`;
+                });
+                html += `</div>`;
+
+                // Right Column: Texts
+                html += `<div class="space-y-4">`;
+                texts.forEach(txt => {
+                    html += `
+                        <div class="match-item-text cursor-pointer transition-all duration-300 bg-gray-50 p-3 rounded-lg shadow-sm border-2 border-transparent hover:border-purple-300 flex items-center h-32 text-sm" 
+                             onclick="app.handleMatchClick('text', ${txt.id}, this)">
+                            ${txt.text}
+                        </div>`;
+                });
+                html += `</div>`;
+
+                // Feedback Overlay
+                html += `<div id="match-feedback" class="absolute inset-0 pointer-events-none flex items-center justify-center hidden">
+                            <div class="bg-white p-4 rounded-xl shadow-2xl font-bold text-xl transform scale-125 transition"></div>
+                         </div>`;
+
+                html += `</div>`;
+                container.innerHTML = html;
+            },
+
+            handleMatchClick: (type, id, el) => {
+                // Ignore if already matched
+                if (el.classList.contains('match-correct')) return;
+
+                // Handle Selection UI
+                const currentSelection = app.matchingState[type === 'img' ? 'selectedImg' : 'selectedText'];
+                
+                // Deselect if clicking same
+                if (currentSelection && currentSelection.id === id) {
+                    el.classList.remove('match-selected');
+                    app.matchingState[type === 'img' ? 'selectedImg' : 'selectedText'] = null;
+                    return;
+                }
+
+                // Clear previous selection of same type
+                document.querySelectorAll(`.match-item-${type}`).forEach(b => b.classList.remove('match-selected'));
+                el.classList.add('match-selected');
+                app.matchingState[type === 'img' ? 'selectedImg' : 'selectedText'] = { id, el };
+
+                // Check Match
+                const sImg = app.matchingState.selectedImg;
+                const sText = app.matchingState.selectedText;
+
+                if (sImg && sText) {
+                    if (sImg.id === sText.id) {
+                        // Match Found
+                        sImg.el.classList.remove('match-selected');
+                        sText.el.classList.remove('match-selected');
+                        sImg.el.classList.add('match-correct', 'bg-green-100');
+                        sText.el.classList.add('match-correct', 'bg-green-100', 'text-green-800');
+                        
+                        app.showMatchFeedback("Correto! +20 Pontos", "text-green-600");
+                        app.updateScore(20);
+                        app.matchingState.matchedCount++;
+                        
+                        app.matchingState.selectedImg = null;
+                        app.matchingState.selectedText = null;
+
+                        if (app.matchingState.matchedCount === app.matchingState.totalPairs) {
+                            setTimeout(() => app.showMatchFeedback("Jogo Completo! Parabéns!", "text-purple-600"), 1000);
+                        }
+                    } else {
+                        // Wrong Match
+                        sImg.el.classList.add('border-red-500');
+                        sText.el.classList.add('border-red-500');
+                        app.showMatchFeedback("Tente Novamente", "text-red-600");
+                        
+                        setTimeout(() => {
+                            sImg.el.classList.remove('match-selected', 'border-red-500');
+                            sText.el.classList.remove('match-selected', 'border-red-500');
+                            app.matchingState.selectedImg = null;
+                            app.matchingState.selectedText = null;
+                        }, 1000);
+                    }
+                }
+            },
+
+            showMatchFeedback: (msg, colorClass) => {
+                const fb = document.getElementById('match-feedback');
+                const content = fb.querySelector('div');
+                content.innerText = msg;
+                content.className = `bg-white p-4 rounded-xl shadow-2xl font-bold text-xl transform scale-125 transition border-4 ${colorClass.replace('text', 'border')}`;
+                content.classList.add(colorClass);
+                
+                fb.classList.remove('hidden');
+                setTimeout(() => fb.classList.add('hidden'), 1000);
+            },
+
+            // --- DRAG AND DROP PERIOD GAME LOGIC ---
+            periodGameState: {
+                clickSource: null
+            },
+
+            initPeriodGame: () => {
+                const container = document.getElementById('period-game-container');
+                if (!container) return;
+
+                // Flatten Presidents
+                const allPresidents = [
+                    ...DB.section2.presidents,
+                    ...DB.section3.presidents,
+                    ...DB.section4.presidents
+                ];
+
+                // Select 5 random
+                const shuffled = allPresidents.sort(() => 0.5 - Math.random()).slice(0, 5);
+                const presidents = shuffled.map((p, i) => ({ id: i, name: p.name, img: p.img }));
+                const periods = shuffled.map((p, i) => ({ id: i, period: p.period })).sort(() => 0.5 - Math.random());
+
+                // Create Sources (Presidents)
+                let html = `<div id="drag-sources" class="space-y-4">`;
+                html += `<h4 class="font-bold text-purple-900 mb-2">Presidentes (Arraste daqui)</h4>`;
+                presidents.forEach(p => {
+                    html += `
+                        <div class="draggable-source bg-white p-3 rounded shadow flex items-center gap-3 border border-gray-200" 
+                             draggable="true" 
+                             data-id="${p.id}"
+                             onclick="app.handlePeriodClickSource(this)">
+                            <img src="${p.img}" class="w-10 h-10 rounded-full object-cover">
+                            <span class="font-bold text-sm">${p.name}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+
+                // Create Targets (Periods)
+                html += `<div id="drop-targets" class="space-y-4">`;
+                html += `<h4 class="font-bold text-pink-900 mb-2">Mandatos (Largue aqui)</h4>`;
+                periods.forEach(p => {
+                    html += `
+                        <div class="drop-zone" 
+                             data-id="${p.id}"
+                             ondragover="app.handleDragOver(event)" 
+                             ondrop="app.handleDrop(event)"
+                             onclick="app.handlePeriodClickTarget(this)">
+                             <span class="pointer-events-none text-pink-800 font-bold">${p.period}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+
+                container.innerHTML = html;
+
+                // Setup Drag Events
+                const draggables = document.querySelectorAll('.draggable-source');
+                draggables.forEach(d => {
+                    d.addEventListener('dragstart', app.handleDragStart);
+                    d.addEventListener('dragend', app.handleDragEnd);
+                });
+            },
+
+            handleDragStart: (e) => {
+                e.target.classList.add('is-dragging');
+                e.dataTransfer.setData('text/plain', e.target.dataset.id);
+                // Also set fallback for click-logic logic to clear visual conflicts
+                app.periodGameState.clickSource = null;
+                document.querySelectorAll('.draggable-source').forEach(el => el.classList.remove('match-selected'));
+            },
+
+            handleDragEnd: (e) => {
+                e.target.classList.remove('is-dragging');
+            },
+
+            handleDragOver: (e) => {
+                e.preventDefault(); // Necessary for drop to work
+                e.currentTarget.classList.add('drag-over');
+            },
+            
+            // Logic for actual Drop
+            handleDrop: (e) => {
+                e.preventDefault();
+                const dropZone = e.currentTarget;
+                dropZone.classList.remove('drag-over');
+
+                const sourceId = e.dataTransfer.getData('text/plain');
+                app.checkPeriodMatch(sourceId, dropZone);
+            },
+
+            // --- Click Fallback for Mobile (Select -> Click) ---
+            handlePeriodClickSource: (el) => {
+                // If already completed, ignore
+                if(el.style.display === 'none') return;
+
+                // Deselect others
+                document.querySelectorAll('.draggable-source').forEach(d => d.classList.remove('match-selected'));
+                el.classList.add('match-selected');
+                app.periodGameState.clickSource = { id: el.dataset.id, el: el };
+            },
+
+            handlePeriodClickTarget: (el) => {
+                if(app.periodGameState.clickSource && !el.classList.contains('dropped-correct')) {
+                    app.checkPeriodMatch(app.periodGameState.clickSource.id, el);
+                    app.periodGameState.clickSource.el.classList.remove('match-selected');
+                    app.periodGameState.clickSource = null;
+                }
+            },
+
+            checkPeriodMatch: (sourceId, dropZone) => {
+                const targetId = dropZone.dataset.id;
+                const feedback = document.getElementById('period-feedback');
+
+                if (sourceId === targetId) {
+                    // Match Correct
+                    dropZone.classList.add('dropped-correct');
+                    // Find source element to hide it
+                    const sourceEl = document.querySelector(`.draggable-source[data-id="${sourceId}"]`);
+                    if(sourceEl) {
+                        // Animate disappearance
+                        sourceEl.style.transform = 'scale(0)';
+                        setTimeout(() => sourceEl.style.display = 'none', 200);
+                        
+                        // Copy content to dropzone
+                        const img = sourceEl.querySelector('img').src;
+                        const name = sourceEl.querySelector('span').innerText;
+                        dropZone.innerHTML = `
+                            <div class="flex flex-col items-center animate-fade-in">
+                                <img src="${img}" class="w-8 h-8 rounded-full mb-1">
+                                <span class="text-xs">${name}</span>
+                                <span class="text-xs font-bold">${dropZone.innerText}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    feedback.innerText = "Correto! (+20 Pontos)";
+                    feedback.className = "mt-4 text-center font-bold text-green-600 text-lg h-8";
+                    app.updateScore(20);
+                } else {
+                    // Match Incorrect
+                    dropZone.classList.add('border-red-500', 'bg-red-50');
+                    feedback.innerText = "Tente Novamente.";
+                    feedback.className = "mt-4 text-center font-bold text-red-600 text-lg h-8";
+                    setTimeout(() => {
+                        dropZone.classList.remove('border-red-500', 'bg-red-50');
+                        feedback.innerText = "";
+                    }, 1000);
+                }
+            },
+
+            // --- ERA MATCHING GAME ---
+            eraGameState: {
+                clickSource: null
+            },
+            
+            initEraGame: () => {
+                const container = document.getElementById('era-game-container');
+                if(!container) return;
+                
+                // 1. Gather Data
+                const era1 = DB.section2.presidents.map(p => ({name: p.name, era: '1', eraName: "1ª República"}));
+                const era2 = DB.section3.presidents.map(p => ({name: p.name, era: '2', eraName: "Ditadura/Estado Novo"}));
+                const era3 = DB.section4.presidents.map(p => ({name: p.name, era: '3', eraName: "Democracia"}));
+                
+                // 2. Sample (2 from each)
+                const items = [
+                    ...era1.sort(() => 0.5 - Math.random()).slice(0, 2),
+                    ...era2.sort(() => 0.5 - Math.random()).slice(0, 2),
+                    ...era3.sort(() => 0.5 - Math.random()).slice(0, 2)
+                ].sort(() => 0.5 - Math.random());
+                
+                // 3. Render HTML
+                let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+                
+                const targets = [
+                    {id: '1', label: "1ª República", color: "bg-yellow-100 border-yellow-400 text-yellow-900"},
+                    {id: '2', label: "Ditadura / Est. Novo", color: "bg-gray-200 border-gray-500 text-gray-900"},
+                    {id: '3', label: "Democracia", color: "bg-green-100 border-green-500 text-green-900"}
+                ];
+                
+                targets.forEach(t => {
+                    html += `
+                        <div class="era-target transition-all duration-200 border-2 border-dashed rounded-lg p-4 min-h-[150px] flex flex-col items-center ${t.color}"
+                             data-era="${t.id}"
+                             ondragover="app.handleDragOver(event)"
+                             ondrop="app.handleEraDrop(event)"
+                             onclick="app.handleEraClickTarget(this)">
+                             <h4 class="font-bold uppercase text-xs mb-3 pointer-events-none">${t.label}</h4>
+                             <div class="era-content w-full space-y-2 pointer-events-none"></div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                
+                html += `<div class="flex flex-wrap gap-3 justify-center mb-4">`;
+                items.forEach((item, i) => {
+                     html += `
+                        <div class="era-draggable bg-white border-2 border-purple-200 text-purple-900 px-3 py-2 rounded shadow-sm cursor-grab hover:bg-purple-50 hover:shadow-md font-semibold text-sm transition-transform active:scale-95"
+                             draggable="true"
+                             data-id="era-item-${i}"
+                             data-era="${item.era}"
+                             ondragstart="app.handleEraDragStart(event)"
+                             onclick="app.handleEraClickSource(this)">
+                             ${item.name}
+                        </div>
+                     `;
+                });
+                html += `</div>`;
+                html += `<div id="era-feedback" class="h-8 text-center font-bold text-lg"></div>`;
+                
+                container.innerHTML = html;
+            },
+            
+            handleEraDragStart: (e) => {
+                e.target.classList.add('opacity-50');
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    id: e.target.dataset.id,
+                    era: e.target.dataset.era,
+                    name: e.target.innerText
+                }));
+                // Mobile/Click logic reset
+                app.eraGameState.clickSource = null;
+                document.querySelectorAll('.era-draggable').forEach(el => el.classList.remove('match-selected'));
+            },
+            
+            handleEraDrop: (e) => {
+                e.preventDefault();
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                const target = e.currentTarget;
+                const originalEl = document.querySelector(`.era-draggable[data-id="${data.id}"]`);
+                if(originalEl) originalEl.classList.remove('opacity-50');
+                
+                app.checkEraMatch(data, target, originalEl);
+            },
+            
+            handleEraClickSource: (el) => {
+                 document.querySelectorAll('.era-draggable').forEach(d => d.classList.remove('match-selected'));
+                 el.classList.add('match-selected');
+                 app.eraGameState.clickSource = {
+                     el: el,
+                     data: {
+                         id: el.dataset.id,
+                         era: el.dataset.era,
+                         name: el.innerText
+                     }
+                 };
+            },
+            
+            handleEraClickTarget: (target) => {
+                if(app.eraGameState.clickSource) {
+                    const { data, el } = app.eraGameState.clickSource;
+                    app.checkEraMatch(data, target, el);
+                    app.eraGameState.clickSource = null;
+                }
+            },
+            
+            checkEraMatch: (data, target, originalEl) => {
+                const targetEra = target.dataset.era;
+                const feedback = document.getElementById('era-feedback');
+                
+                if(data.era === targetEra) {
+                    // Correct
+                    const tag = document.createElement('div');
+                    tag.className = "bg-white/90 p-2 rounded shadow text-sm font-bold w-full text-center animate-fade-in";
+                    tag.innerText = data.name;
+                    target.querySelector('.era-content').appendChild(tag);
+                    
+                    if(originalEl) originalEl.remove();
+                    
+                    feedback.innerText = "Correto! +15 Pontos";
+                    feedback.className = "h-8 text-center font-bold text-lg text-green-600";
+                    app.updateScore(15);
+                } else {
+                    // Incorrect
+                    target.classList.add('ring-4', 'ring-red-400');
+                    setTimeout(() => target.classList.remove('ring-4', 'ring-red-400'), 500);
+                    
+                    if(originalEl) {
+                        originalEl.classList.remove('match-selected');
+                        originalEl.classList.add('animate-pulse');
+                        setTimeout(() => originalEl.classList.remove('animate-pulse'), 500);
+                    }
+                    
+                    feedback.innerText = "Incorreto. Tente novamente.";
+                    feedback.className = "h-8 text-center font-bold text-lg text-red-600";
+                }
+            },
+
+            // --- SORT GAME LOGIC (Drag & Drop) ---
+            sortDragState: {
+                draggedItem: null
+            },
+
+            initSortGame: () => {
+                const container = document.getElementById('sort-game');
+                // Presidents to sort (mixed)
+                const items = [
+                    { id: 4, name: "Mário Soares" },
+                    { id: 1, name: "Manuel de Arriaga" },
+                    { id: 3, name: "António de Spínola" },
+                    { id: 2, name: "Óscar Carmona" },
+                    { id: 5, name: "Marcelo Rebelo de Sousa" }
+                ];
+                
+                let html = '';
+                items.forEach((item, index) => {
+                    html += `
+                        <div class="sort-item bg-gray-100 p-3 rounded flex justify-between items-center mb-2 border border-gray-200 select-none" 
+                             draggable="true" 
+                             data-id="${item.id}"
+                             ondragstart="app.handleSortDragStart(event)"
+                             ondrop="app.handleSortDrop(event)">
+                            <div class="flex items-center gap-3">
+                                <span class="text-gray-400 cursor-grab text-xl">☰</span>
+                                <span class="font-semibold">${item.name}</span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <button onclick="app.moveItem(this, -1)" class="text-xs bg-gray-300 px-2 rounded hover:bg-gray-400">▲</button>
+                                <button onclick="app.moveItem(this, 1)" class="text-xs bg-gray-300 px-2 rounded hover:bg-gray-400">▼</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+            
+            handleSortDragStart: (e) => {
+                app.sortDragState.draggedItem = e.target.closest('.sort-item');
+                e.target.closest('.sort-item').classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            },
+
+            handleSortDragOver: (e) => {
+                e.preventDefault();
+                const container = document.getElementById('sort-game');
+                const afterElement = app.getDragAfterElement(container, e.clientY);
+                const draggable = document.querySelector('.dragging');
+                if (afterElement == null) {
+                    container.appendChild(draggable);
+                } else {
+                    container.insertBefore(draggable, afterElement);
+                }
+            },
+
+            handleSortDrop: (e) => {
+                e.preventDefault();
+                const draggable = document.querySelector('.dragging');
+                if(draggable) draggable.classList.remove('dragging');
+                app.sortDragState.draggedItem = null;
+            },
+
+            getDragAfterElement: (container, y) => {
+                const draggableElements = [...container.querySelectorAll('.sort-item:not(.dragging)')];
+
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            },
+
+            moveItem: (btn, direction) => {
+                const item = btn.closest('.sort-item');
+                const container = document.getElementById('sort-game');
+                if (direction === -1 && item.previousElementSibling) {
+                    container.insertBefore(item, item.previousElementSibling);
+                } else if (direction === 1 && item.nextElementSibling) {
+                    container.insertBefore(item.nextElementSibling, item);
+                }
+            },
+
+            checkOrder: () => {
+                const items = document.querySelectorAll('.sort-item');
+                let ids = [];
+                items.forEach(i => ids.push(parseInt(i.dataset.id)));
+                
+                // Expected order: 1, 2, 3, 4, 5
+                const isCorrect = ids.every((val, i, arr) => !i || (val >= arr[i - 1]));
+                
+                const feedback = document.getElementById('game-feedback');
+                if(isCorrect) {
+                    feedback.textContent = "Parabéns! Ordem Correta (+50 Pontos)";
+                    feedback.className = "mt-2 text-center font-bold text-green-600";
+                    app.updateScore(50);
+                } else {
+                    feedback.textContent = "Ordem incorreta. Tente novamente.";
+                    feedback.className = "mt-2 text-center font-bold text-red-600";
+                }
+            },
+
+            // --- CERTIFICATE LOGIC ---
+            generateCertificate: () => {
+                const html = `
+                    <div class="text-center p-6">
+                        <div class="mb-6">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-600">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Personalizar Certificado</h3>
+                            <p class="text-gray-600">Por favor, introduza o seu nome para ser impresso no certificado.</p>
+                        </div>
+                        <input type="text" id="cert-name-input" class="w-full p-4 border border-gray-300 rounded-lg mb-6 text-center text-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none" placeholder="O seu nome aqui">
+                        <button onclick="app.renderCertificate()" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-700 shadow-lg transition w-full">Gerar Documento</button>
+                    </div>
+                `;
+                app.openModal("Emissão de Certificado", html);
+            },
+
+            renderCertificate: () => {
+                const input = document.getElementById('cert-name-input');
+                const studentName = (input && input.value.trim() !== '') ? input.value.trim() : "Aluno(a)";
+
+                // Calculate theoretical max score
+                // Base: 380 + New Era Game (6 * 15 = 90) = 470
+                const maxScore = 470;
+                const percentage = Math.min(100, Math.round((app.currentScore / maxScore) * 100));
+                
+                let grade = "";
+                let color = "";
+                
+                if(percentage >= 90) { grade = "Excelente"; color = "text-green-600"; }
+                else if(percentage >= 70) { grade = "Muito Bom"; color = "text-blue-600"; }
+                else if(percentage >= 50) { grade = "Satisfatório"; color = "text-yellow-600"; }
+                else { grade = "Precisa de Estudar Mais"; color = "text-red-600"; }
+
+                const today = new Date().toLocaleDateString('pt-PT');
+
+                const certHTML = `
+                    <div class="border-8 border-double border-gray-800 p-8 text-center bg-white relative overflow-hidden">
+                        <!-- Watermark -->
+                        <div class="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
+                             <svg class="w-96 h-96" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2-1-2-1-2 1 2 1zm0-3.5L6 7l6 3 6-3-6-3.5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        </div>
+
+                        <h2 class="text-4xl font-serif font-bold text-gray-900 mb-2 uppercase tracking-widest">Certificado de Conclusão</h2>
+                        <div class="w-32 h-1 bg-gray-800 mx-auto mb-8"></div>
+                        
+                        <p class="text-xl text-gray-600 mb-4">Certifica-se que</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mb-4 italic underline decoration-purple-500 decoration-2 underline-offset-4">${studentName}</h3>
+                        <p class="text-xl text-gray-600 mb-6">completou com sucesso o módulo educativo sobre</p>
+                        <h3 class="text-3xl font-bold text-purple-900 mb-8 italic">"Presidentes da República Portuguesa"</h3>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-8 text-left max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                            <span class="font-bold text-gray-600">Pontuação Final:</span>
+                            <span class="font-mono text-xl text-right text-gray-800">${app.currentScore} pontos</span>
+                            
+                            <span class="font-bold text-gray-600">Desempenho:</span>
+                            <span class="font-bold text-xl text-right ${color}">${percentage}% (${grade})</span>
+                        </div>
+
+                        <div class="flex justify-between items-end mt-12 text-sm text-gray-500 font-serif">
+                            <div class="border-t border-gray-400 px-8 pt-2">Data: ${today}</div>
+                            <div class="border-t border-gray-400 px-8 pt-2">Validação Digital</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center print:hidden">
+                        <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-bold shadow flex items-center justify-center gap-2 mx-auto">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            Imprimir Certificado
+                        </button>
+                    </div>
+                `;
+                
+                app.openModal("Resultado Final", certHTML);
+            }
+        };
+
+        // Start
+        document.addEventListener('DOMContentLoaded', app.init);
+
+    </script>
+</body>
+</html>
